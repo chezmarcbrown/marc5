@@ -1,13 +1,22 @@
 {% extends "auctions/layout.html" %}
 
 {% block main %}
-<h2>Active Listings</h2>
+    
+{% for m in messages %}
+    <h2 class="{{m.tags}}">{{m}}</h2>
+{% endfor %}
+
+<h2>{{banner}}</h2>
 
 <article>
-    <section>Listing 1</section>
-
-    <section>Listing 2</section>
-
-    <section>Listing 3</section>
+    {% for listing in listings %}
+        <section>
+            <h3>{{listing.title}}</h3>
+            <p>created by {{listing.creator}}</p>
+            <p>Created at {{listing.created_at}}</p>
+            <p>Last modified at {{listing.updated_at}}</p>
+            blah, blah
+        </section>
+    {% endfor %}
 </article>
 {% endblock %}

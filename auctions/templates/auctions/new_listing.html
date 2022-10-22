@@ -1,0 +1,21 @@
+
+{% extends "auctions/layout.html" %}
+
+{% block main %}
+
+    <h2>Create Listing</h2>
+
+    {% for m in messages %}
+        <h2 class="{{m.tags}}">{{m}}</h2>
+    {% endfor %}
+
+    <form action="{% url 'create-listing' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_table }}
+        <div>
+            <input type="submit" value="Create Listing">
+            <input type="reset" value="Reset">
+        </div>
+    </form>
+
+{% endblock %}
