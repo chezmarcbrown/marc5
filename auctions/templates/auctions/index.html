@@ -11,11 +11,17 @@
 <article>
     {% for listing in listings %}
         <section>
-            <h3>{{listing.title}}</h3>
-            <p>created by {{listing.creator}}</p>
-            <p>Created at {{listing.created_at}}</p>
+            <h3>
+                <a href="{% url 'listing' listing.id %}"">{{listing.title}}</a>
+                {% if not listing.active %}
+                    - Bidding ended
+                {% endif %}
+            </h3>
+            <p>created by {{listing.creator}} at {{listing.created_at}}</p>
             <p>Last modified at {{listing.updated_at}}</p>
-            blah, blah
+            <p><i>
+                {{listing.description}}
+            </i></p>
         </section>
     {% endfor %}
 </article>

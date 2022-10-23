@@ -1,0 +1,62 @@
+
+{% extends "auctions/layout.html" %}
+
+{% block main %}
+
+{% for m in messages %}
+<h2 class="{{m.tags}}">{{m}}</h2>
+{% endfor %}
+
+<h2>{{ listing.title }}</h2>
+<p>{{ listing.description }}</p>
+
+<p>Created by {{ listing.creator }} at {{ listing.created_at }}</p>
+
+<form action="{% url 'listing' listing.id %}"method="POST">
+    {% csrf_token %}
+
+    <p>
+        {% if user.is_authenticated %}
+        <button type="submit" name="doit" value="toggle-watcher">
+            {% if being_watched %}
+                Stop Watching
+            {% else %}
+                Add to my watchlist
+            {% endif %}
+        </button>
+        {% endif %}
+        ({{ listing.watcher_count }} watchers)
+    </p>
+ 
+    <p>
+        {% if not listing.active %}
+            Bidding for this item has ended. 
+            {% if listing.high_bid %}
+                Winning bid was for ${{ listing.high_bid.amount}} by {{ listing.bidder }}.
+            {% else %}
+                There were no bids. 
+            {% endif %}
+        {% else %}
+            {% if listing.high_bid %}
+                Current high bid is for ${{ listing.high_bid.amount }}.
+            {% else %}
+                There are currently no bids.
+            {% endif %}
+            {% if user.is_authenticated %}
+                {% if user == listing.creator %}
+                    <button type="submit" name="doit" value="close-auction">Close Auction</button>
+                {% else %}
+                    <button type="submit" name="doit" value="bid">Bid!</button>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    </p>
+
+</form>
+
+<pre> 
+    There are ## comments. LINK:View comments. 
+    IF logged in:
+       BUTTON("add comment")
+    </pre>
+{% endblock %}

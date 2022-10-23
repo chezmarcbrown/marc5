@@ -12,6 +12,7 @@
     <form action="{% url 'create-listing' %}" method="post">
         {% csrf_token %}
         {{ form.as_table }}
+        <p>ADD CATEGORIES</p>
         <div>
             <input type="submit" value="Create Listing">
             <input type="reset" value="Reset">
