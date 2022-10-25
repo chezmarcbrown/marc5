@@ -1,4 +1,6 @@
 from django.urls import path
+from django.views.generic.base import TemplateView
+
 from . import views
 
 urlpatterns = [
@@ -12,4 +14,7 @@ urlpatterns = [
     path("my_listings", views.my_listings, name="my-listings"),
     path("my_watchlist", views.my_watchlist, name="my-watchlist"),
     path("create_listing", views.create_listing, name="create-listing"),
+    path("categories", views.categories, name="categories"),
+    path("category/<int:category_id>", views.category, name="category"),
+    path("comment/<int:listing_id>", views.add_comment, name="add-comment"),
 ]

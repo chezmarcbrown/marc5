@@ -6,8 +6,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from .models import User, Listing
-from .forms import ListingForm, BidForm
+from .models import User, Listing, Category
+from .forms import ListingForm, BidForm, CommentForm
 
 def login_view(request):
     if request.method == "POST":
@@ -66,7 +66,7 @@ def register(request):
 def index(request):
     return render(request, "auctions/index.html", {
         'listings': Listing.objects.all().filter(active=True).order_by('-created_at'),
-        'banner': 'All Listings'
+        'banner': 'Active Listings'
     })
 
 def listing(request, listing_id):
@@ -83,6 +83,8 @@ def listing(request, listing_id):
             listing.active = False
             listing.save()
             return redirect('my-listings')
+        elif clicked == "add-comment":
+            return redirect('add-comment', listing_id=listing_id)
         else:
             return HttpResponseServerError(f'Unknown button clicked')
     else:
@@ -110,29 +112,46 @@ def my_watchlist(request):
         'banner': 'My Watchlist'
     })
 
+def categories(request):
+    return render(request, "auctions/categories.html", {
+        'categories': Category.objects.all().order_by('name'),
+    })
+
+def category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    listings = Listing.objects.filter(categories = category, active=True)
+    print(f'try9hg to get listings of category: {listings}')
+    return render(request, "auctions/index.html", {
+        'listings': listings,
+        'banner': f'{category.name} Listings',
+    })
+
 @login_required(login_url='login')
 def create_listing(request):
     if request.method == "POST":
+        if "cancel" in request.POST: 
+            return redirect('index')
         form = ListingForm(request.POST, request.FILES)
         if form.is_valid():
             listing = form.save(commit=False)
             listing.creator = request.user
             listing.save()
+            form.save_m2m()
             messages.success(request, f'Listing created successfully!')
             return redirect("index")
         else:
             messages.error(request, 'Problem creating the listing. Details below.')	
     else: 
-        form = ListingForm()
+        form = ListingForm(initial={'starting_bid': 1})
     return render(request, "auctions/new_listing.html", {'form':form})
 
 @login_required(login_url='login')
-# should check that the user is not the creator of this item
+# possible todo: prevent user to bid on his own listing
 def bid(request, listing_id):
     listing = get_object_or_404(Listing, id=listing_id)
     if request.method == 'POST':
         form = BidForm(request.POST)
-        form.set_minimum_bid(listing.high_bid_amount())
+        form.set_minimum_bid(listing.minimum_bid())
         if form.is_valid():
             bid = form.save(commit=False)
             bid.bidder = request.user
@@ -142,9 +161,28 @@ def bid(request, listing_id):
         else:
             messages.error(request, "Problem with the bid")
     else:
-        form = BidForm()
+        form = BidForm(initial={'amount':listing.minimum_bid})
     return render(request, "auctions/bid.html", {
             'form': form,
             'listing': listing,
-        })
-   
+        }) 
+
+@login_required(login_url='login')
+def add_comment(request, listing_id):
+    listing = get_object_or_404(Listing, id=listing_id)
+    if request.method == "POST":
+        if "cancel" in request.POST: 
+            return redirect('listing', listing_id=listing_id)
+        form = CommentForm(request.POST, request.FILES)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.commentor = request.user
+            comment.listing = listing
+            comment.save()
+            return redirect('listing', listing_id=listing_id)
+        else:
+            messages.error(request, 'Problem creating the comment. Details below.')	
+    else: 
+        form = CommentForm()
+    return render(request, "auctions/listing.html", {
+        'form':form, 'listing':listing, 'show_CommentForm':'yes'})

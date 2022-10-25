@@ -16,7 +16,7 @@
                 <span>
                     <a href="{% url 'my-listings' %}">My Listings</a>
                     <a href="{% url 'index' %}">Active Listings</a>
-                    <a href="#">Categories</a>
+                    <a href="{% url 'categories' %}">Categories</a>
                     <a href="{% url 'my-watchlist' %}">My Watchlist</a>
                     <a href="{% url 'create-listing' %}">Create Listing</a>
                 </span>
@@ -32,6 +32,9 @@
             </nav>
         </header>
         <main>
+            {% for m in messages %}
+                <h2 class="{{m.tags}}">{{m}}</h2>
+            {% endfor %}
             {% block main %}
             {% endblock %}
         </main>

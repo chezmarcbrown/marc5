@@ -2,10 +2,6 @@
 
 {% block main %}
     
-{% for m in messages %}
-    <h2 class="{{m.tags}}">{{m}}</h2>
-{% endfor %}
-
 <h2>{{banner}}</h2>
 
 <article>
@@ -13,15 +9,17 @@
         <section>
             <h3>
                 <a href="{% url 'listing' listing.id %}"">{{listing.title}}</a>
-                {% if not listing.active %}
-                    - Bidding ended
-                {% endif %}
+                | <small>
+                    High Bid: ${{ listing.high_bid_amount }}
+                    {% if not listing.active %}
+                        - Auction Closed
+                    {% endif %}
+                </small>
             </h3>
-            <p>created by {{listing.creator}} at {{listing.created_at}}</p>
-            <p>Last modified at {{listing.updated_at}}</p>
-            <p><i>
-                {{listing.description}}
-            </i></p>
+            <div class="listing-description">{{ listing.description }}</div>
+            <p>
+                {{ listing.watcher_count }} watchers | {{ listing.bid_count }} bidders | {{listing.comment_count }} comments
+            </p>
         </section>
     {% endfor %}
 </article>
