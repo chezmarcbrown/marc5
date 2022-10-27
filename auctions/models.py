@@ -39,11 +39,7 @@ class Listing(models.Model):
         return max(self.starting_bid, 1+self.high_bid_amount())
 
     def high_bid(self):
-        b = self.bids.all().order_by('-created_at')
-        if len(b) == 0:
-            return None
-        else:
-            return b.first()
+        return self.bids.all().order_by('-created_at').first()
 
     def high_bid_amount(self):
         bid = self.high_bid()

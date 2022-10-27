@@ -120,7 +120,6 @@ def categories(request):
 def category(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     listings = Listing.objects.filter(categories = category, active=True)
-    print(f'try9hg to get listings of category: {listings}')
     return render(request, "auctions/index.html", {
         'listings': listings,
         'banner': f'{category.name} Listings',
@@ -186,3 +185,18 @@ def add_comment(request, listing_id):
         form = CommentForm()
     return render(request, "auctions/listing.html", {
         'form':form, 'listing':listing, 'show_CommentForm':'yes'})
+
+from django.http import JsonResponse
+import json
+def api_status(request):
+    if request.user.is_authenticated:
+        my_count = Listing.objects.filter(creator=request.user).count()
+    else:
+        my_count = "0"
+    status = {
+        'my_listings': my_count,
+        'total_listings': Listing.objects.all().count(),
+        'active_listings': Listing.objects.filter(active=True).count()
+    }
+    print(f'api_status called. user is: {request.user}. values: {status}')
+    return JsonResponse(status)

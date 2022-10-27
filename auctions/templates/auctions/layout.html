@@ -8,14 +8,14 @@
         <title>{% block title %}Auctions{% endblock %}</title>
         <link rel="stylesheet" href="https://cdn.simplecss.org/simple.css">
         <link rel="stylesheet" href="{% static 'auctions/uaa490styles.css' %}" >
-    </head>
+</head>
     <body>
         <header>
             <h1>Auctions "R" Us</h1>
             <nav>
                 <span>
-                    <a href="{% url 'my-listings' %}">My Listings</a>
-                    <a href="{% url 'index' %}">Active Listings</a>
+                    <a href="{% url 'my-listings' %}">My Listings - <span id="ml">0</span></a>
+                    <a href="{% url 'index' %}">Active Listings - <span id="al">0</span></a>
                     <a href="{% url 'categories' %}">Categories</a>
                     <a href="{% url 'my-watchlist' %}">My Watchlist</a>
                     <a href="{% url 'create-listing' %}">Create Listing</a>
@@ -38,5 +38,7 @@
             {% block main %}
             {% endblock %}
         </main>
-    </body>
+        <script src="{% static 'auctions/auctions.js' %}"></script>
+
+     </body>
 </html>
