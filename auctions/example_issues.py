@@ -1,3 +1,4 @@
+from dataclasses import field
 from msilib import MSIMODIFY_DELETE
 from django.db import models
 from django.shortcuts import render, redirect, get_object_or_404
@@ -216,3 +217,125 @@ class NewListing(forms.Form):
     description = forms.CharField(label="Entry:", widget=forms.Textarea())
     image = forms.ImageField(label="Image:", required=False)   
     category = forms.CharField(label="Category", widget=forms.Select(choices=categories))
+
+
+    urlpatterns = [
+    path("", views.index, name="index"),
+    path("login", views.login_view, name="login"),
+    path("logout", views.logout_view, name="logout"),
+    path("register", views.register, name="register"),
+    path("create_listing", views.create_listing, name="create_listing"),
+    path("<int:id>/close_listing", views.close_listing, name="close_listing"),
+    path("watchlist", views.watchlist, name="watchlist"),
+    path("watchlist/<int:id>", views.save_to_watchlist, name="save_to_watchlist"),
+    path("remove_from_watchlist/<int:id>", views.remove_from_watchlist, name="remove_from_watchlist"),
+    path("categories", views.categories, name="categories"),
+    path("categories/<int:id>", views.filter_category, name="filter_category"),
+    path("<int:id>", views.listing, name="listing"),
+    path("<int:id>/", views.comment_to_listing, name="comment_to_listing"),
+    path("place_bid", views.place_bid, name="place_bid"),
+
+
+------
+
+User vs 
+
+
+class Watchlist(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, default=1, on_delete=models.CASCADE)
+    listing = models.ForeignKey(Listing, default = "", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.user} added {self.listing} to watchlist.'
+
+
+Diff watchlinst
+class Listing(models.Model):
+    watchers = models.ManyToManyField(User, blank=True, related_name="watched_listings")
+
+
+
+-----
+
+<article class="article">
+    {% for l in listings %}
+    
+    {% if l.sold == False %}
+    <div class="listingsgrid">
+
+        {% for m in message %}
+      <h2>{{m}}</h2>
+      {% endfor %}
+
+-----
+def place_bid(request):
+    if request.user.is_authenticated:
+        # if request.method == "POST":
+        #     msg =""
+        #     form = BidsForm(request.POST)
+        #     new_bid = int(form.data["new_bid"])
+        #     id = form.data["id"]
+        #     l = Listings.objects.get(pk=id)
+        if request.method == "POST":
+            msg =""
+            form = BidsForm(request.POST)
+            if form.is_valid():
+                new_bid = form.cleaned_data["new_bid"]
+
+----
+
+    <form action="{% url 'place_bid' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{listings.id}}">
+
+--
+
+Related field
+
+class Listing(models.Model):
+
+    buyer = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name="buyer")
+    listing_category = models.ForeignKey(Categories, on_delete=models.CASCADE, related_name="l_category")
+
+    img = models.ImageField(upload_to='images/', blank=True)
+    url_img = models.URLField()
+
+-----
+
+{% if user == listings.lister %}
+    <a href="{% url 'close_listing' listings.id %}"><button>Close Listing</button></a>
+{% endif %}
+
+
+{% if user == listings.lister %}
+    <a href="{% url 'close_listing' listings.id %}"><button>Close Listing</button></a>
+{% endif %}
+
+    {% if user == listings.lister %}
+        <form action=""{% url 'close_listing' listings.id %}" method="POST">
+            <button>Close Listing</button><
+        </form>
+    {% endif %}
+
+    {% if user == listings.lister %}
+        <form action=""{% url 'close_listing' listings.id %}" method="POST">
+            <input type="submit">Close Listing</input>
+        </form>
+    {% endif %}
+
+    #---------------
+
+        created_at = models.DateTimeField(auto_now=True)
+
+       comments = Comment.objects.filter(listing=entry).order_by('-created_at')
+
+
+Probably better to display the items in the watchlist from newest to oldest. Easy way to do that is to add a field to the model: 
+   created_at = models.DateTimeField(auto_now=True)
+And then. Oops. Nevermind. Your watchlist is not an object. How about adding this to comments (i think you started to do so with creation_date), and then, when you display the comments, rather than
+        comments = Comment.objects.filter(listing=entry)
+you’d have
+       comments = Comment.objects.filter(listing=entry).order_by(‘-created_at’)
+
+
+
