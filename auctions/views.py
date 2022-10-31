@@ -200,3 +200,19 @@ def api_status(request):
     }
     print(f'api_status called. user is: {request.user}. values: {status}')
     return JsonResponse(status)
+
+
+from django.template.context_processors import csrf
+def save_example_form(request):
+    form = CommentForm(request.POST or None)
+    if form.is_valid():
+        # You could actually save through AJAX and return a success code here
+        form.save()
+        return {'success': True}
+
+
+    ctx = {}
+    ctx.update(csrf(request))
+    form_html = None; #render_crispy_form(form, context=ctx)
+    return {'success': False, 'form_html': form_html}
+
